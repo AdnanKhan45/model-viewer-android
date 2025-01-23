@@ -83,106 +83,6 @@ class MainActivity : Activity() {
 
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-        /*  titlebarHint = findViewById(R.id.user_hint)
-          surfaceView = findViewById(R.id.main_sv)
-          choreographer = Choreographer.getInstance()
-
-          singleTapDetector = GestureDetector(applicationContext, singleTapListener)
-          scaleGestureDetector = ScaleGestureDetector(applicationContext, ScaleListener())
-
-          modelViewer = ModelViewer(surfaceView)
-          viewerContent.view = modelViewer.view
-          viewerContent.sunlight = modelViewer.light
-          viewerContent.lightManager = modelViewer.engine.lightManager
-          viewerContent.scene = modelViewer.scene
-          viewerContent.renderer = modelViewer.renderer
-
-          surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
-              override fun surfaceCreated(holder: SurfaceHolder) {
-                  Log.d(TAG, "SurfaceCallback: 1 : surfaceCreated: Let ModelViewer handle attaching internally.")
-                  // No reflection needed here. ModelViewer’s UiHelper will detect the new surface.
-              }
-
-              override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-                  Log.d(TAG, "SurfaceCallback: 2 : surfaceChanged: updating viewport to ($width, $height)")
-                  // Optionally set the viewport: modelViewer.view.viewport = IntRect(0, 0, width, height)
-              }
-
-              override fun surfaceDestroyed(holder: SurfaceHolder) {
-                  Log.d(TAG, "SurfaceCallback: 3 : surfaceDestroyed: Let ModelViewer handle detaching internally.")
-                  // No reflection needed. Don’t destroy the engine here.
-              }
-          })
-
-          surfaceView.setOnTouchListener { _, event ->
-              modelViewer.onTouchEvent(event)
-              singleTapDetector.onTouchEvent(event)
-              scaleGestureDetector.onTouchEvent(event)
-              true
-          }
-
-
-          createDefaultRenderables()
-          createIndirectLight()
-
-          val view = modelViewer.view
-
-          // Set render quality options
-          view.renderQuality = view.renderQuality.apply {
-              hdrColorBuffer = View.QualityLevel.MEDIUM
-          }
-
-          // Enable dynamic resolution
-          view.dynamicResolutionOptions = view.dynamicResolutionOptions.apply {
-              enabled = true
-              quality = View.QualityLevel.MEDIUM
-          }
-
-          // Enable MSAA
-          view.multiSampleAntiAliasingOptions = view.multiSampleAntiAliasingOptions.apply {
-              enabled = true
-          }
-
-          // Enable FXAA
-          view.antiAliasing = View.AntiAliasing.FXAA
-
-          // Enable ambient occlusion
-          view.ambientOcclusionOptions = view.ambientOcclusionOptions.apply {
-              enabled = true
-          }
-
-          // Enable bloom
-          view.bloomOptions = view.bloomOptions.apply {
-              enabled = true
-          }*/
-    }
-
-    private fun createDefaultRenderables() {
-        val buffer = assets.open("models/Tooth-3.glb").use { input ->
-            val bytes = ByteArray(input.available())
-            input.read(bytes)
-            ByteBuffer.wrap(bytes)
-        }
-
-        modelViewer.loadModelGltfAsync(buffer) { uri ->
-            readAsset("models/$uri")
-        }
-        updateRootTransform()
-    }
-
-    private fun createIndirectLight() {
-        val engine = modelViewer.engine
-        val scene = modelViewer.scene
-        val ibl = "venetian_crossroads_2k"
-        readAsset("envs/$ibl/${ibl}_ibl.ktx").let {
-            scene.indirectLight = KTX1Loader.createIndirectLight(engine, it)
-            scene.indirectLight!!.intensity = 30_000.0f
-            viewerContent.indirectLight = scene.indirectLight
-        }
-        readAsset("envs/$ibl/${ibl}_skybox.ktx").let {
-            scene.skybox = KTX1Loader.createSkybox(engine, it)
-        }
     }
 
     private fun readAsset(assetName: String): ByteBuffer {
@@ -190,13 +90,6 @@ class MainActivity : Activity() {
             val bytes = ByteArray(input.available())
             input.read(bytes)
             ByteBuffer.wrap(bytes)
-        }
-    }
-
-    private fun clearStatusText() {
-        statusToast?.let {
-            it.cancel()
-            statusText = null
         }
     }
 
@@ -228,14 +121,6 @@ class MainActivity : Activity() {
     override fun onBackPressed() {
         super.onBackPressed()
         finish()
-    }
-
-    private fun updateRootTransform() {
-        if (automation.viewerOptions.autoScaleEnabled) {
-            modelViewer.transformToUnitCube()
-        } else {
-            modelViewer.clearRootTransform()
-        }
     }
 
     inner class FrameCallback : Choreographer.FrameCallback {
@@ -323,16 +208,6 @@ class MainActivity : Activity() {
                 }
             }
             return super.onSingleTapUp(event)
-        }
-    }
-
-    private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-        override fun onScale(detector: ScaleGestureDetector): Boolean {
-            val scale = detector.scaleFactor
-            scaleFactor *= scale
-            scaleFactor = scaleFactor.coerceIn(0.5f, 2.0f) // Limit zoom levels
-//            updateCameraZoom()
-            return true
         }
     }
 
